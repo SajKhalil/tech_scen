@@ -1,0 +1,6 @@
+---
+  - name: Install software
+    become: yes
+    yum:
+      name: "{{ packages }}"
+      state: present

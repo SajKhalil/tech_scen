@@ -1,0 +1,64 @@
+---
+- name: Configure AWS server
+  hosts: localhost
+  connection: local
+  vars:
+    region: eu-west-2
+    vpc_IDs: vpc-ed731e85
+    sg_name: custom_ec2        # name of the security group
+
+  tasks:
+
+  - name: Setup security groups
+    ec2_group:
+      name: "{{ sg_name }}"
+      description: "{{ sg_name }}"
+      region: "{{ region }}"
+      vpc_id: "{{ vpc_IDs }}"
+
+      # inbound rules
+      rules:
+        - proto: tcp
+          ports:
+            - 22
+            - 53
+          cidr_ip: 0.0.0.0/0
+
+        - proto: udp
+          ports:
+            - 53
+          cidr_ip: 0.0.0.0/0
+
+
+  - name: Launch an ec2 instance
+    include_tasks: tasks/create_ec2.yml
+    vars:
+      number_of_instances: 1
+      some_image: ami-04122be15033aa7ec
+      server_name: dbserver
+    
+    # Base disk setup:
+      volume_type: gp2
+      base_disk_size: 9
+
+      some_key: Terraform_EC2_key
+
+
+  - name: Install some software
+    include_tasks: tasks/software.yml
+    vars:
+      packages:
+       - nmap
+       - firewalld
+
+  - name: Start and enable some service
+    include_tasks: tasks/service.yml
+    vars:
+      some_service:
+        - firewalld
+
+  - name: open a port on the firewall
+    include_tasks: tasks/firewall.yml
+    vars:
+      some_port:
+        - ssh

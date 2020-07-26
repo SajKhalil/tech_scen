@@ -1,0 +1,25 @@
+---
+  - name: Launch a custom ec2 instance
+    ec2:
+      count: "{{ number_of_instances }}"
+      instance_type: t2.micro
+      key_name: "{{ some_key }}"
+      image: "{{ some_image }}" 
+      region: "{{ region }}"
+      vpc_subnet_id: subnet-5030f61c
+      group: "{{ sg_name }}"
+      assign_public_ip: false
+      wait: yes
+      state: present
+      instance_tags: 
+        Name: "{{ server_name }}"
+      validate_certs: false
+      volumes:
+        - device_name: /dev/xvda
+          volume_type: "{{ volume_type }}"
+          volume_size: "{{ base_disk_size }}"
+          delete_on_termination: yes
+      user_data: "{{ lookup('file', '~/ec2/tasks/update_server.sh') }}"
+                  
+        
+

@@ -1,0 +1,7 @@
+---
+  - name: open some service on the firewall
+    become: yes
+    firewalld:
+      service: "{{ some_port }}"
+      state: enabled
+      permanent: true
